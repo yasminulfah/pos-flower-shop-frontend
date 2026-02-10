@@ -6,6 +6,9 @@ function Pos() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState('');
+  const [cashPaid, setCashPaid] = useState(''); 
+  const [cashChange, setCashChange] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -16,12 +19,22 @@ function Pos() {
         console.error('Failed to fetch products', error);
       }
     };
+    
     fetchProducts();
   }, []);
 
-  //Fungsi untuk menambah barang ke keranjang sementara
+  // --- USEEFFECT UNTUK HITUNG TOTAL & KEMBALIAN ---
+  useEffect(() => {
+    const newTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    setTotalPrice(newTotal);
+
+    // Hitung ulang kembalian jika uang dibayar sudah diinput
+    const paid = Number(cashPaid) || 0;
+    setCashChange(paid - newTotal);
+  }, [cart, cashPaid]);
+
+  // Fungsi untuk menambah barang ke keranjang sementara
   const addToCart = (product, variant) => {
-  
     const price = parseFloat(variant.price);
 
     if (isNaN(price)) {
@@ -34,7 +47,6 @@ function Pos() {
     );
 
     if (existingItem) {
-      // Jika barang sudah ada, tambah jumlahnya
       setCart(
         cart.map((item) =>
           item.variant_id === variant.id
@@ -43,7 +55,6 @@ function Pos() {
         )
       );
     } else {
-      // Jika barang baru, masukkan ke keranjang
       setCart([
         ...cart,
         {
@@ -62,53 +73,61 @@ function Pos() {
     setCart(cart.map(item => {
       if (item.variant_id === variantId) {
         const newQuantity = item.quantity + change;
-        // Cegah jumlah barang kurang dari 1
         return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
       }
       return item;
     }));
   };
 
-  // Hitung total harga
-  const total = cart.reduce((sum, item) => {
-    return sum + Number(item.price) * item.quantity;
-  }, 0);
-
   // Proses Transaksi (Offline/Kasir)
   const handleCheckout = async () => {
     if (cart.length === 0) {
-        alert("Cart is empty!");
-        return;
+      alert("Cart is empty!");
+      return;
+    }
+
+    if (Number(cashPaid) < totalPrice) {
+      alert("Cash paid is not enough!");
+      return;
     }
 
     const formattedItems = cart.map(item => ({
-        product_variant_id: item.variant_id,
-        quantity: item.quantity
+      product_variant_id: item.variant_id,
+      quantity: item.quantity
     }));
 
     // Data untuk checkout offline
     const checkoutData = {
-        items: formattedItems,
-        payment_method: 'cash',
-        source: 'offline', 
+      items: formattedItems,
+      customer_name: customerName,
+      payment_method: 'cash',
+      source: 'offline',
+      amount_paid: Number(cashPaid) || 0,
+      amount_change: cashChange,
+      grand_total: totalPrice,
     };
 
     try {
-        const response = await api.post('/order', checkoutData);
+      const response = await api.post('/order', checkoutData);
 
-        if (response.data.success) {
-            alert("Order created successfully! No: " + response.data.data.order_number);
-            setCart([]); // Kosongkan keranjang
-            
-            // --- FITUR CETAK STRUK ---
-            // Buka struk di tab baru untuk dicetak
-            window.open(`/admin/print-receipt/${response.data.data.id}`, '_blank');
-        }
+      if (response.data.success) {
+        alert("Order created successfully! No: " + response.data.data.order_number);
+        
+        // --- FITUR CETAK STRUK ---
+        const orderId = response.data.data.id;
+        window.open(`/admin/print-receipt/${orderId}`, '_blank');
+
+        // Reset state
+        setCart([]);
+        setCustomerName('');
+        setCashPaid("");
+        setCashChange(0);
+      }
     } catch (error) {
-        console.error("Order failed", error);
-        alert(error.response?.data?.message || "An error occurred.");
+      console.error("Order failed", error);
+      alert(error.response?.data?.message || "An error occurred.");
     }
-};
+  };
 
   return (
     <AdminLayout>
@@ -146,7 +165,7 @@ function Pos() {
                 </button>
                 ))
             ))}
-            </div>
+          </div>
         </div>
 
         {/* Kolom Kanan: Keranjang */}
@@ -195,7 +214,34 @@ function Pos() {
 
           <div className="border-t pt-4 font-bold text-lg flex justify-between">
             <span>Total</span>
-            <span className="text-pink-700">Rp {total.toLocaleString('id-ID')}</span>
+            <span className="text-pink-700">Rp {totalPrice.toLocaleString('id-ID')}</span>
+          </div>
+          
+          {/* --- INPUT UANG TUNAI --- */}
+          <div className="mt-2">
+            <label className="block text-sm font-medium">Cash Paid:</label>
+              <input
+                type="number"
+                className="w-full p-2 border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                value={cashPaid}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCashPaid(value); // Simpan sebagai string agar bisa dihapus total
+
+                  // Hitung kembalian hanya jika value bukan string kosong
+                  const paid = Number(value) || 0;
+                  setCashChange(paid - totalPrice);
+                }}
+                placeholder="Enter amount"
+              />
+          </div>
+
+          {/* --- TAMPILAN KEMBALIAN --- */}
+          <div className="flex justify-between mt-2 font-bold text-lg">
+            <span>Change:</span>
+            <span className={cashChange < 0 ? "text-red-500" : "text-green-500"}>
+              Rp {cashChange.toLocaleString('id-ID')}
+            </span>
           </div>
           
           <button 

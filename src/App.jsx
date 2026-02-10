@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/admin/Dashboard';
 import Pos from './pages/admin/Pos';
+import PrintReceipt from './pages/admin/PrintReceipt';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/pos" element={<Pos />} />
+        <Route path="/admin/print-receipt/:id" element={<PrintReceipt />} />
       </Routes>
     </Router>
   );
