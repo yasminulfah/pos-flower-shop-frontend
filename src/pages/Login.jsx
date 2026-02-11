@@ -19,28 +19,31 @@ function Login() {
 
     try {
       if (isLogin) {
-        // Logika Login
         const response = await api.post('/login', { email, password });
         
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('role', response.data.user.role);
 
-        // Redirect based on role
         if (['admin', 'cashier', 'owner'].includes(response.data.user.role)) {
           navigate('/admin/dashboard');
         } else {
           navigate('/');
         }
       } else {
-        // Logika Registrasi
         if (password !== confirmPassword) {
           setError('Passwords do not match!');
           return;
         }
         
-        await api.post('/register', { name, email, password });
+        await api.post('/register', { 
+            name, 
+            email, 
+            password, 
+            password_confirmation: confirmPassword 
+        });
+        
         setSuccess('Registration successful! Please login.');
-        setIsLogin(true); // Arahkan ke form login setelah sukses
+        setIsLogin(true); 
         setName('');
         setEmail('');
         setPassword('');
