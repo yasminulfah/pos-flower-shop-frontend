@@ -1,12 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api/axios'; 
 
 function AdminLayout({ children }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await api.post('/logout');
+    } catch (error) {
+      console.error('Logout API failed', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      navigate('/login');
+    }
   };
 
   return (
@@ -21,9 +28,7 @@ function AdminLayout({ children }) {
           <Link to="/admin/pos" className="block p-2 rounded hover:bg-pink-100">POS Cashier</Link>
           <Link to="/admin/order/history" className="block p-2 hover:bg-pink-100 rounded">Order History</Link>
           <Link to="/admin/products" className="block p-2 rounded hover:bg-pink-100">Product Management</Link>
-          <button onClick={handleLogout} className="w-full text-left p-2 rounded hover:bg-red-100 text-red-600">
-            Logout
-          </button>
+          <button onClick={handleLogout} className="w-full text-left p-2 rounded hover:bg-red-100 text-red-600">Logout</button>
         </nav>
       </aside>
 

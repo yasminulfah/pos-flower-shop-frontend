@@ -27,7 +27,7 @@ function Login() {
         if (['admin', 'cashier', 'owner'].includes(response.data.user.role)) {
           navigate('/admin/dashboard');
         } else {
-          navigate('/');
+          navigate('/login');
         }
       } else {
         if (password !== confirmPassword) {
