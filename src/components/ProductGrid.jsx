@@ -1,4 +1,4 @@
-function ProductGrid({ products, addToCart, pexelsImages }) {
+function ProductGrid({ products, addToCart }) {
   if (!products || products.length === 0) {
     return (
       <div className="col-span-2 bg-white p-6 rounded-lg shadow-md text-center">
@@ -15,14 +15,13 @@ function ProductGrid({ products, addToCart, pexelsImages }) {
           if (!product.variants || product.variants.length === 0) return null;
 
           return product.variants.map((variant) => {
-            // Mapping gambar Pexels
             const imageUrl = variant.detail_image;
 
             return (
               <button
                 key={variant.id}
                 onClick={() => addToCart(product, variant)}
-                className="border p-4 rounded-lg hover:border-pink-500 hover:shadow-lg transition flex flex-col items-center"
+                className="p-4 rounded-lg hover:border-pink-500 hover:shadow-lg transition flex flex-col items-center"
               >
                 <img
                   src={imageUrl}

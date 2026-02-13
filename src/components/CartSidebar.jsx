@@ -73,7 +73,7 @@ function CartSidebar({
         <label className="block text-sm font-medium">Cash Paid:</label>
         <input
           type="number"
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           value={cashPaid}
           onChange={(e) => {
             const value = e.target.value;
