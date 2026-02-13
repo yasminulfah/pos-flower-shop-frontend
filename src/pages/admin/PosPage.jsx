@@ -16,6 +16,7 @@ function PosPage() {
   const [selectedShipping, setSelectedShipping] = useState('');
   const [selectedPackaging, setSelectedPackaging] = useState('');
   const [pendingOrders, setPendingOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +35,8 @@ function PosPage() {
 
       } catch (error) {
         console.error('Failed to fetch data', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -156,6 +159,9 @@ function PosPage() {
   return (
     <AdminLayout>
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">POS Cashier</h1>
+        {loading ? (
+        <div className="text-center">Loading POS...</div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 gap-5">
             <div className="flex flex-col gap-2">
@@ -199,6 +205,7 @@ function PosPage() {
           />
         </div>
       </div>
+    )}
     </AdminLayout>
   );
 }
