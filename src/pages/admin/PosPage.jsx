@@ -15,23 +15,22 @@ function PosPage() {
   const [packagings, setPackagings] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState('');
   const [selectedPackaging, setSelectedPackaging] = useState('');
+  const [pendingOrders, setPendingOrders] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [prodRes, shipRes, packRes] = await Promise.all([
+        const [prodRes, shipRes, packRes, pendingRes] = await Promise.all([
           api.get('/products'),
           api.get('/shippings'), 
-          api.get('/packagings') 
+          api.get('/packagings'),
+          api.get('/orders/pending')
         ]);
-
-        console.log("Data Produk:", prodRes.data.data);
-        console.log("Data Shipping:", shipRes.data);
-        console.log("Data Packaging:", packRes.data);
 
         setProducts(prodRes.data.data);
         setShippings(shipRes.data.data); 
         setPackagings(packRes.data.data);
+        setPendingOrders(pendingRes.data.data);
 
       } catch (error) {
         console.error('Failed to fetch data', error);
@@ -103,45 +102,102 @@ function PosPage() {
       if (response.data.success) {
         alert("Order created: " + response.data.data.order_number);
         window.open(`/admin/print-receipt/${response.data.data.id}`, '_blank');
-        setCart([]);
-        setCustomerName('');
-        setCashPaid("");
-        setCashChange(0);
-        setSelectedShipping('');
-        setSelectedPackaging('');
+        requestFormReset();
       }
     } catch (error) {
       alert(error.response?.data?.message || "Order failed.");
     }
   };
 
+  const requestFormReset = () => {
+    setCart([]);
+    setCustomerName('');
+    setCashPaid("");
+    setCashChange(0);
+    setSelectedShipping('');
+    setSelectedPackaging('');
+  }
+
+  const handleHoldOrder = async () => {
+    if (cart.length === 0) return;
+
+    try {
+      const payload = {
+        items: cart.map(item => ({
+          variant_id: item.variant_id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+
+        customer_name: customerName,
+        shipping_id: selectedShipping,
+        package_id: selectedPackaging,
+        grand_total: totalPrice
+      };
+      const response = await api.post('/orders/hold', payload);
+      
+      setPendingOrders([...pendingOrders, response.data.data]);
+      requestFormReset();
+      alert("Order ditahan!");
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menahan order.");
+    }
+  };
+
+  const handleResumeOrder = (order) => {
+    setCart(order.items);
+    setCustomerName(order.customer_name || '');
+    setSelectedShipping(order.shipping_id || '');
+    setSelectedPackaging(order.package_id || '');
+    setPendingOrders(pendingOrders.filter(o => o.id !== order.id));
+  };
+
   return (
     <AdminLayout>
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">POS Cashier</h1>
-      <div className="grid grid-cols-3 gap-6">
-        <ProductGrid 
-        products={products} 
-        addToCart={addToCart} 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 gap-5">
+            <div className="flex flex-col gap-2">
+              {/* Tombol Hold */}
+              <button onClick={handleHoldOrder} className="w-fit bg-pink-500 text-white p-2 rounded">Hold Order</button>
+              {/* Daftar Pending Orders */}
+              <div className="mb-4 p-4 border rounded bg-gray-50">
+                <h3 className="font-bold mb-2">Pending Orders:</h3>
+                <div className="flex flex-wrap gap-2">
+                {pendingOrders.map(order => (
+                  <button key={order.id} onClick={() => handleResumeOrder(order)} className="bg-gray-200 hover:bg-gray-300 p-2 rounded text-sm">
+                    Order #{order.id} - {order.customer_name || 'No Name'}
+                  </button>
+                ))}
+                </div>  
+              </div>
+            </div>
+            <ProductGrid 
+            products={products} 
+            addToCart={addToCart} />
+          </div>
 
-        />
-        <CartSidebar
-          cart={cart}
-          customerName={customerName}
-          setCustomerName={setCustomerName}
-          totalPrice={totalPrice}
-          cashPaid={cashPaid}
-          setCashPaid={setCashPaid}
-          cashChange={cashChange}
-          setCashChange={setCashChange}
-          shippings={shippings}
-          selectedShipping={selectedShipping}
-          setSelectedShipping={setSelectedShipping}
-          packagings={packagings}
-          selectedPackaging={selectedPackaging}
-          setSelectedPackaging={setSelectedPackaging}
-          handleCheckout={handleCheckout}
-          updateQuantity={updateQuantity}
-        />
+        <div className="md:col-span-1">
+          <CartSidebar
+            cart={cart}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            totalPrice={totalPrice}
+            cashPaid={cashPaid}
+            setCashPaid={setCashPaid}
+            cashChange={cashChange}
+            setCashChange={setCashChange}
+            shippings={shippings}
+            selectedShipping={selectedShipping}
+            setSelectedShipping={setSelectedShipping}
+            packagings={packagings}
+            selectedPackaging={selectedPackaging}
+            setSelectedPackaging={setSelectedPackaging}
+            handleCheckout={handleCheckout}
+            updateQuantity={updateQuantity}
+          />
+        </div>
       </div>
     </AdminLayout>
   );
