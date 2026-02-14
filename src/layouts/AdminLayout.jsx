@@ -12,7 +12,7 @@ function AdminLayout({ children }) {
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
-      navigate('/login');
+      navigate('/');
     }
   };
 
