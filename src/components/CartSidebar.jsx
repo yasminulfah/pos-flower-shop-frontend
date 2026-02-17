@@ -1,3 +1,4 @@
+import { useState } from 'react'; // 1. Impor useState
 import ShippingSelector from './ShippingSelector';
 import PackagingSelector from './PackagingSelector';
 
@@ -16,15 +17,26 @@ function CartSidebar({
   packagings,
   selectedPackaging,
   setSelectedPackaging,
-  handleCheckout,
+  handleCheckout, // <--- FUNGSI INI AKAN KITA MODIFIKASI
   updateQuantity,
   handleHoldOrder,
   pendingOrders,
   handleResumeOrder
 }) {
 
+  // 2. State untuk Metode Pembayaran di Sidebar
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+
   console.log("CartSidebar render, cart data:", cart);
-  const canCheckout = cashChange >= 0 && cart.length > 0;
+  
+  // Update validasi: jika bank_transfer, cashChange tidak harus >= 0, 
+  // tapi harus pastikan user sudah bayar nominal tertentu (diatur di backend)
+  const canCheckout = cart.length > 0;
+
+  // 3. Fungsi modifikasi untuk mengirim data pembayaran ke parent (POS Component)
+  const onCheckout = () => {
+    handleCheckout(paymentMethod); // Kirim metode pembayaran ke fungsi checkout
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md sticky top-6 h-fit">
@@ -71,40 +83,58 @@ function CartSidebar({
         />
       </div>
 
+      {/* 4. Dropdown Metode Pembayaran */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">Payment Method:</label>
+        <select 
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+          className="w-full border p-2 rounded"
+        >
+          <option value="cash">Cash</option>
+          <option value="bank_transfer">Bank Transfer</option>
+        </select>
+      </div>
+
       <div className="border-t pt-4 font-bold text-lg flex justify-between">
         <span>Total</span>
         <span className="text-pink-700">Rp {totalPrice.toLocaleString('id-ID')}</span>
       </div>
 
-      <div className="mt-2">
-        <label className="block text-sm font-medium">Cash Paid:</label>
-        <input
-          type="number"
-          className="w-full p-2 border rounded appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          value={cashPaid}
-          onChange={(e) => {
-            const value = e.target.value;
-            setCashPaid(value);
-            const paid = Number(value) || 0;
-            setCashChange(paid - totalPrice);
-          }}
-          placeholder="Enter amount"
-        />
-      </div>
+      {/* Tampilkan input cash hanya jika metode pembayaran adalah 'cash' */}
+      {paymentMethod === 'cash' && (
+        <>
+          <div className="mt-2">
+            <label className="block text-sm font-medium">Cash Paid:</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              value={cashPaid}
+              onChange={(e) => {
+                const value = e.target.value;
+                setCashPaid(value);
+                const paid = Number(value) || 0;
+                setCashChange(paid - totalPrice);
+              }}
+              placeholder="Enter amount"
+            />
+          </div>
 
-      <div className="flex justify-between mt-2 font-bold text-lg">
-        <span>Change:</span>
-        <span className={cashChange < 0 ? "text-red-500" : "text-green-500"}>
-          Rp {cashChange.toLocaleString('id-ID')}
-        </span>
-      </div>
+          <div className="flex justify-between mt-2 font-bold text-lg">
+            <span>Change:</span>
+            <span className={cashChange < 0 ? "text-red-500" : "text-green-500"}>
+              Rp {cashChange.toLocaleString('id-ID')}
+            </span>
+          </div>
+        </>
+      )}
 
     <div className="mt-6 border-t pt-4 space-y-3">
       <button
-        onClick={handleCheckout}
-        disabled={!canCheckout} 
+        onClick={onCheckout} // <--- Gunakan fungsi baru
+        disabled={!canCheckout || (paymentMethod === 'cash' && cashChange < 0)} 
         className={`w-full text-white py-3 rounded-lg mt-4 font-semibold transition ${
-          canCheckout 
+          canCheckout && (paymentMethod === 'bank_transfer' || cashChange >= 0)
             ? "bg-green-600 hover:bg-green-700" 
             : "bg-gray-400 cursor-not-allowed"
         }`}

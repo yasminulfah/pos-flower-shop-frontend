@@ -46,7 +46,7 @@ const OrderDetail = () => {
   // --- LOGIKA STATUS TRACKER ---
   const getStatusTracker = () => {
     if (!order) return null;
-    const statusSteps = ['pending', 'processing', 'shipped', 'completed'];
+    const statusSteps = ['pending', 'completed'];
     const currentStatusIndex = statusSteps.indexOf(order.status);
     
     // Jika dibatalkan, tracker tidak perlu ditampilkan

@@ -5,8 +5,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, cartSubtotal } = useCart();
   
-  // Ganti dengan URL API Produksi Anda
-  const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+  const API_URL = 'http://127.0.0.1:8000';
 
   if (cartItems.length === 0) {
     return (

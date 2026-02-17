@@ -4,13 +4,13 @@ import api from '../../api/axios';
 function ProductManagement() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]); // 🛠️ Tambah state kategori
+  const [categories, setCategories] = useState([]); 
 
   // 🛠️ State untuk Filter dan Pagination
   const [filters, setFilters] = useState({
     search: '',
     category_id: '',
-    status: 'active', // Default lihat yang aktif
+    status: 'active', 
     page: 1,
     limit: 10
   });
@@ -289,7 +289,6 @@ function ProductManagement() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Main Image</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variants (Price/Stock)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -298,13 +297,6 @@ function ProductManagement() {
             <tbody className="divide-y divide-gray-200">
               {products.map(product => (
                 <tr key={product.id}>
-                  <td className="px-6 py-4">
-                    {product.main_image ? (
-                      <img src={`http://localhost:8000/storage/${product.main_image}`} alt={product.product_name} className="h-12 w-12 object-cover rounded" />
-                    ) : (
-                      <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">No Img</div>
-                    )}
-                  </td>
                   <td className="px-6 py-4">
                     <div className="font-medium text-gray-900">{product.product_name}</div>
                     <div className="text-sm text-gray-500">{product.description}</div>

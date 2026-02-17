@@ -30,10 +30,12 @@ function Dashboard() {
 
   // Konfigurasi Data Grafik
   const chartData = {
-    labels: stats.salesGraph.map(item => item.date),
+    // PERBAIKAN: Menambahkan optional chaining (?.) untuk keamanan data
+    labels: stats.salesGraph?.map(item => item.date) || [],
     datasets: [{
       label: `Daily Sales - ${filterSource.toUpperCase()} (Rp)`,
-      data: stats.salesGraph.map(item => item.total),
+      // PERBAIKAN: Menambahkan optional chaining (?.) untuk keamanan data
+      data: stats.salesGraph?.map(item => item.total) || [],
       borderColor: filterSource === 'online' ? 'rgb(219, 39, 119)' : 'rgb(59, 130, 246)',
       backgroundColor: filterSource === 'online' ? 'rgba(219, 39, 119, 0.5)' : 'rgba(59, 130, 246, 0.5)',
       tension: 0.3
@@ -69,7 +71,8 @@ function Dashboard() {
           <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
             <p className="text-gray-500 uppercase text-sm font-semibold">Today's Revenue ({filterSource})</p>
             <p className="text-3xl font-bold text-gray-900">
-              Rp {stats.todaySales.toLocaleString('id-ID')}
+              {/* PERBAIKAN: Menambahkan ?. agar tidak eror jika data belum ada */}
+              Rp {stats.todaySales?.toLocaleString('id-ID') || 0}
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
@@ -98,7 +101,8 @@ function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.bestSellerProducts.map((item, index) => (
+                  {/* PERBAIKAN: Menambahkan ?. untuk keamanan */}
+                  {stats.bestSellerProducts?.map((item, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                       <td className="p-2 font-medium">{item.product_name}</td>
                       <td className="p-2 text-gray-600">{item.variant_name}</td>
@@ -113,11 +117,13 @@ function Dashboard() {
           {/* Alert Stok Rendah */}
           <div className="bg-white p-6 rounded-lg shadow border-t-4 border-red-500">
             <h2 className="text-xl font-semibold text-red-700 mb-4">Low Stock Warning!</h2>
-            {stats.lowStockProducts.length > 0 ? (
+            {/* PERBAIKAN: Typo sstats -> stats */}
+            {stats.lowStockProducts && stats.lowStockProducts.length > 0 ? (
               <ul className="space-y-2 text-red-800">
                 {stats.lowStockProducts.map(item => (
                   <li key={item.id} className="flex justify-between bg-red-50 p-2 rounded">
-                    <span>{item.product.product_name} - {item.variant_name}</span>
+                    {/* PERBAIKAN: Typo Unknow -> Unknown */}
+                    <span>{item.product?.product_name || 'Unknown'} - {item.variant_name}</span>
                     <span className="font-bold">{item.stock} left</span>
                   </li>
                 ))}

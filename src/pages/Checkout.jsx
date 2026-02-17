@@ -9,8 +9,8 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
+    customer_name: '', // Sesuaikan nama field dengan backend (di code sebelumnya ada customer_name)
+    shipping_address: '', // Sesuaikan nama field
     phone: '',
     notes: '',
     payment_method: 'bank_transfer',
@@ -32,29 +32,38 @@ const Checkout = () => {
     }
 
     const payload = {
-      ...formData,
+      customer_name: formData.name, // Mapping data
+      shipping_address: formData.address, // Mapping data
+      // note: Anda mungkin perlu menambahkan field untuk shipping_id atau package_id jika ada
+      
       items: cartItems.map(item => ({
         product_variant_id: item.variant_id,
         quantity: item.quantity,
-        price: item.price
       })),
+      
       grand_total: cartSubtotal,
-      source: 'online',
+      
+      // --- INI SANGAT PENTING ---
+      source: 'online', // <-- Ini membuat status jadi 'pending' di Laravel
+      // --------------------------
+      
       payment_method: formData.payment_method,
-      amount_paid: cartSubtotal,
+      amount_paid: 0, // Customer online belum bayar
       amount_change: 0,
     };
 
     try {
-      const response = await api.post('/order', payload);
+      // --- PERBAIKAN ENDPOINT DI SINI ---
+      const response = await api.post('/order', payload); // Gunakan '/checkout' sesuai Controller Laravel
+      // ---------------------------------
+      
       if (response.data.success) {
         clearCart(); // Kosongkan keranjang setelah berhasil
         navigate('/order-success', { 
-                state: { 
-                    order: response.data.data, // Berisi order_number, total, dll
-                    paymentInstructions: response.data.payment_instructions // Instruksi dari backend
-                } 
-            });
+            state: { 
+                order: response.data.data, // Berisi order_number, total, dll
+            } 
+        });
       }
     } catch (error) {
       console.error(error);

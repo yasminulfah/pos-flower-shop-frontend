@@ -91,24 +91,34 @@ function PosPage() {
     }));
   };
 
-  const handleCheckout = async () => {
+ const handleCheckout = async (paymentMethod) => {
     if (cart.length === 0) return alert("Cart is empty!");
     if (!selectedShipping || !selectedPackaging) return alert("Please select Shipping and Packaging!");
+
+    // 2. Hitung ulang amount_paid dan amount_change berdasarkan metode pembayaran
+    const finalAmountPaid = paymentMethod === 'cash' ? (Number(cashPaid) || 0) : totalPrice;
+    const finalAmountChange = paymentMethod === 'cash' ? cashChange : 0;
 
     const checkoutData = {
       items: cart.map(item => ({ product_variant_id: item.variant_id, quantity: item.quantity })),
       customer_name: customerName,
       shipping_id: selectedShipping,
       package_id: selectedPackaging,
-      payment_method: 'cash',
-      source: 'offline',
-      amount_paid: Number(cashPaid) || 0,
-      amount_change: cashChange,
+      
+      // 3. Gunakan metode pembayaran dari sidebar
+      payment_method: paymentMethod, 
+      
+      // 4. Pastikan source adalah 'offline' untuk transaksi kasir
+      source: 'offline', 
+      
+      amount_paid: finalAmountPaid,
+      amount_change: finalAmountChange,
       grand_total: totalPrice,
       order_id: currentOrderId,
     };
 
     try {
+      // 5. PASTIKAN ENDPOINT ADALAH '/checkout' sesuai Controller Laravel
       const response = await api.post('/order', checkoutData);
 
       if (response.data.success) {
@@ -123,7 +133,7 @@ function PosPage() {
     } catch (error) {
       alert(error.response?.data?.message || "Order failed.");
     }
-  };
+};
 
   const requestFormReset = () => {
     setCart([]);

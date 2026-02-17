@@ -48,20 +48,6 @@ function ProductDetail() {
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white p-6 rounded-2xl shadow-sm">
-          
-          {/* Bagian Produk Utama */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            <div className="rounded-xl overflow-hidden bg-gray-100">
-              <img src={`${API_URL}${product.main_image}`} alt={product.product_name} className="w-full h-full object-cover"/>
-            </div>
-            <div>
-              <span className="text-sm text-pink-600 font-semibold">{product.category?.category_name}</span>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">{product.product_name}</h2>
-              <p className="text-gray-600 text-lg mb-6">{product.description}</p>
-            </div>
-          </div>
-
-          {/* Bagian Varian - Tombol Langsung di Sini */}
           <div className="border-t pt-8">
             <h3 className="text-2xl font-bold mb-6">Pilih Varian</h3>
             
@@ -90,8 +76,6 @@ function ProductDetail() {
                 </div>
               ))}
             </div>
-            
-            {/* 4. Tombol aksi bawah dihapus */}
           </div>
         </div>
       </div>

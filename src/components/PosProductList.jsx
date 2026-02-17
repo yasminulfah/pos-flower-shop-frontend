@@ -34,11 +34,6 @@ const PosProductList = ({ products, addToCart, loading }) => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map(product => (
             <div key={product.id} className="border rounded-lg p-3 hover:border-pink-300 transition-colors bg-gray-50 flex flex-col">
-              <img
-                src={`${API_URL}${product.main_image}`}
-                alt={product.product_name}
-                className="w-full h-24 object-cover rounded-md mb-2"
-              />
               <h3 className="font-semibold text-sm text-gray-800 truncate mb-2" title={product.product_name}>
                 {product.product_name}
               </h3>

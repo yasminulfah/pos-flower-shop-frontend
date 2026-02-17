@@ -42,7 +42,7 @@ const OrderSuccess = () => {
         <div className="mt-8 text-left">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Instruksi Pembayaran</h2>
           <div className="bg-white border rounded-lg p-6 shadow-inner space-y-4">
-            <p className="text-gray-700">Silakan lakukan pembayaran sebesar:</p>
+            <p className="text-gray-700">Silakan konfirmasi pesanan via WhatsApp dan lakukan pembayaran sebesar:</p>
             <p className="text-2xl font-bold text-gray-900">
               Rp {order.grand_total.toLocaleString('id-ID')}
             </p>
@@ -58,10 +58,6 @@ const OrderSuccess = () => {
               Konfirmasi via WhatsApp
             </a>
           </div>
-        </div>
-
-        <div className="mt-10">
-          <Link to="/catalog" className="text-pink-600 hover:text-pink-700 font-semibold cursor-pointer">Back to Catalog</Link>
         </div>
       </div>
     </div>

@@ -10,10 +10,10 @@ function AdminLayout({ children }) {
           Uma Bloemist
         </div>
         <nav className="p-4 space-y-2">
-          <Link to="/admin/dashboard" className="block p-2 rounded hover:bg-pink-100">Dashboard</Link>
-          <Link to="/admin/pos" className="block p-2 rounded hover:bg-pink-100">POS Cashier</Link>
-          <Link to="/admin/order/history" className="block p-2 hover:bg-pink-100 rounded">Order History</Link>
-          <Link to="/admin/products" className="block p-2 rounded hover:bg-pink-100">Product Management</Link>
+          <Link to="/admin/dashboard" className="block p-2 rounded hover:bg-pink-100">📶 Dashboard</Link>
+          <Link to="/admin/pos" className="block p-2 rounded hover:bg-pink-100">💶 POS Cashier</Link>
+          <Link to="/admin/order/history" className="block p-2 hover:bg-pink-100 rounded">📑 Order History</Link>
+          <Link to="/admin/products" className="block p-2 rounded hover:bg-pink-100">📋Product Management</Link>
           <Logout className="w-full text-left p-2 rounded hover:bg-red-100 text-red-600" />
         </nav>
       </aside>
