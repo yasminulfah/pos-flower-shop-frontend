@@ -17,8 +17,15 @@ function CartSidebar({
   selectedPackaging,
   setSelectedPackaging,
   handleCheckout,
-  updateQuantity
+  updateQuantity,
+  handleHoldOrder,
+  pendingOrders,
+  handleResumeOrder
 }) {
+
+  console.log("CartSidebar render, cart data:", cart);
+  const canCheckout = cashChange >= 0 && cart.length > 0;
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md sticky top-6 h-fit">
       <h2 className="text-xl font-bold mb-4">New Order</h2>
@@ -92,12 +99,42 @@ function CartSidebar({
         </span>
       </div>
 
+    <div className="mt-6 border-t pt-4 space-y-3">
       <button
         onClick={handleCheckout}
-        className="w-full bg-green-600 text-white py-3 rounded-lg mt-4 hover:bg-green-700 font-semibold"
+        disabled={!canCheckout} 
+        className={`w-full text-white py-3 rounded-lg mt-4 font-semibold transition ${
+          canCheckout 
+            ? "bg-green-600 hover:bg-green-700" 
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
       >
         Process Transaction
       </button>
+      <button 
+          onClick={handleHoldOrder}
+          className="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 font-semibold text-sm"
+        >
+          Hold Order
+        </button>
+      </div>
+
+      {pendingOrders.length > 0 && (
+        <div className="mt-6 border-t pt-4">
+          <h3 className="font-bold mb-2 text-gray-700 text-sm">Pending Orders:</h3>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {pendingOrders.map(order => (
+              <button 
+                key={order.id} 
+                onClick={() => handleResumeOrder(order)} 
+                className="w-full text-left bg-gray-100 hover:bg-gray-200 p-2 rounded text-xs"
+              >
+                Order #{order.id} - {order.customer_name || 'No Name'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

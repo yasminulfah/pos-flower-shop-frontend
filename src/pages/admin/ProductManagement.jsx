@@ -1,10 +1,25 @@
-import { useState, useEffect } from 'react';
-import AdminLayout from '../../layouts/AdminLayout';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios'; 
 
 function ProductManagement() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]); // 🛠️ Tambah state kategori
+
+  // 🛠️ State untuk Filter dan Pagination
+  const [filters, setFilters] = useState({
+    search: '',
+    category_id: '',
+    status: 'active', // Default lihat yang aktif
+    page: 1,
+    limit: 10
+  });
+
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0
+  });
   
   const [formData, setFormData] = useState({
     product_name: '',
@@ -18,35 +33,81 @@ function ProductManagement() {
   
   const [editingId, setEditingId] = useState(null);
 
+  // 🛠️ useEffect diperbarui agar memanggil fetchProducts saat filter berubah
   useEffect(() => {
     fetchProducts();
+  }, [filters]);
+
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
-  const fetchProducts = async () => {
+  // 🛠️ Fungsi mengambil produk dengan parameter filter
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/products');
-      setProducts(response.data.data);
+      // Mengirim filter sebagai params
+      const response = await api.get('/products', { params: filters });
+      
+      // Struktur data dari Laravel paginate() adalah response.data.data
+      setProducts(response.data.data.data);
+      setPagination({
+        current_page: response.data.data.current_page,
+        last_page: response.data.data.last_page,
+        total: response.data.data.total
+      });
     } catch (error) {
       console.error('Error fetching products', error);
       alert('Gagal mengambil data produk');
     } finally {
       setLoading(false);
     }
+  }, [filters]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      setCategories(response.data.data);
+    } catch (error) {
+      console.error('Error fetching categories', error);
+    }
   };
 
+  // 🛠️ Handler untuk perubahan filter
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value,
+      page: 1 // Reset ke halaman 1 jika filter berubah
+    }));
+  };
+
+  // 🛠️ Handler untuk pindah halaman
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
+
+  // ... handleInputChange, handleVariantChange, addVariantRow, removeVariantRow tetap sama ...
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : value
-    }));
+    if (name === 'main_image') {
+      setFormData(prev => ({ ...prev, main_image: files[0] }));
+    } else {
+      setFormData(prev => ({...prev, [name]: value}));
+    }
   };
 
   const handleVariantChange = (index, e) => {
     const { name, value, files } = e.target;
     const newVariants = [...formData.variants];
-    newVariants[index][name] = files ? files[0] : value;
+
+    if (name === 'detail_image') {
+      newVariants[index][name] = files[0];
+    } else {
+      newVariants[index][name] = value;
+    }
+
     setFormData(prev => ({ ...prev, variants: newVariants }));
   };
 
@@ -64,23 +125,22 @@ function ProductManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const data = new FormData();
     data.append('product_name', formData.product_name);
     data.append('category_id', formData.category_id);
     data.append('description', formData.description);
-    if (formData.main_image instanceof File) {
+
+    if (formData.main_image) {
         data.append('main_image', formData.main_image);
-    } else if (formData.main_image) {
-    console.error("formData.main_image bukan objek File biner!");
-  }
+    } 
     
-    // Append varian ke FormData
     formData.variants.forEach((variant, index) => {
       data.append(`variants[${index}][variant_name]`, variant.variant_name);
       data.append(`variants[${index}][price]`, variant.price);
       data.append(`variants[${index}][stock]`, variant.stock);
       data.append(`variants[${index}][sku]`, variant.sku);
-      if (variant.detail_image instanceof File) {
+      if (variant.detail_image) {
         data.append(`variants[${index}][detail_image]`, variant.detail_image);
         }
     });
@@ -88,18 +148,26 @@ function ProductManagement() {
     if (editingId) data.append('_method', 'PUT');
 
     try {
+      const config = {
+        headers: { 'content-type': 'multipart/form-data' }
+      };
+
       if (editingId) {
-        await api.post(`/products/${editingId}`, data);
+        await api.post(`/products/${editingId}`, data, config);
         alert('Produk berhasil diperbarui');
       } else {
-        await api.post('/products', data);
+        await api.post('/products', data, config);
         alert('Produk berhasil ditambahkan');
       }
-      fetchProducts();
+      fetchProducts(); // Refresh data setelah submit
       resetForm();
     } catch (error) {
       console.error('Error submitting form', error.response?.data);
-      alert('Gagal menyimpan produk: ' + JSON.stringify(error.response?.data.errors));
+      if (error.response?.data?.errors) {
+        alert('Gagal menyimpan produk: ' + JSON.stringify(error.response.data.errors));
+      } else {
+        alert('Terjadi kesalahan pada server');
+      }
     }
   };
 
@@ -110,7 +178,6 @@ function ProductManagement() {
       category_id: product.category_id,
       description: product.description,
       main_image: null,
-
       variants: product.variants.map(v => ({
         id: v.id,
         variant_name: v.variant_name,
@@ -147,19 +214,21 @@ function ProductManagement() {
   };
 
   return (
-    <AdminLayout>
+    <div>
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">Product Management</h1>
 
-      {/* Form Tambah/Edit */}
+      {/* Form Tambah/Edit (Tetap sama) */}
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow mb-6">
         <h2 className="text-xl font-semibold mb-4 text-pink-700">
           {editingId ? 'Edit Product' : 'Add New Product'}
         </h2>
         
-        {/* Input Data Utama Produk */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input type="text" name="product_name" value={formData.product_name} onChange={handleInputChange} placeholder="Product Name" className="border p-2 rounded" required />
-          <input type="number" name="category_id" value={formData.category_id} onChange={handleInputChange} placeholder="Category ID" className="border p-2 rounded" required />
+          <select name="category_id" value={formData.category_id} onChange={handleInputChange} className="border p-2 rounded" required>
+            <option value="">Select Category</option>
+            {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.category_name}</option>)}
+          </select>
           <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Description" className="border p-2 rounded col-span-2" />
           <div className="flex flex-col col-span-2">
             <label className="text-sm text-gray-600 mb-1">Main Image</label>
@@ -167,7 +236,6 @@ function ProductManagement() {
           </div>
         </div>
 
-        {/* --- INPUT DATA VARIAN --- */}
         <h3 className="text-lg font-semibold mb-2">Variants</h3>
         {formData.variants.map((variant, index) => (
           <div key={index} className="grid grid-cols-5 gap-2 mb-2 p-2 border rounded bg-gray-50 items-center">
@@ -196,6 +264,22 @@ function ProductManagement() {
           )}
         </div>
       </form>
+
+      {/* 🛠️ UI Filter & Pencarian */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-end">
+        <div className="flex-1 min-w-[200px]">
+          <input type="text" name="search" placeholder="Cari nama produk..." value={filters.search} onChange={handleFilterChange} className="w-full border p-2 rounded" />
+        </div>
+        <select name="category_id" value={filters.category_id} onChange={handleFilterChange} className="border p-2 rounded">
+          <option value="">Semua Kategori</option>
+          {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.category_name}</option>)}
+        </select>
+        <select name="status" value={filters.status} onChange={handleFilterChange} className="border p-2 rounded">
+          <option value="">Semua Status</option>
+          <option value="active">Aktif</option>
+          <option value="inactive">Nonaktif</option>
+        </select>
+      </div>
 
       {/* Tabel Produk */}
       {loading ? (
@@ -240,9 +324,30 @@ function ProductManagement() {
               ))}
             </tbody>
           </table>
+
+          {/* 🛠️ UI Pagination */}
+          <div className="px-6 py-4 flex justify-between items-center border-t">
+            <p className="text-sm text-gray-600">Menampilkan {products.length} dari {pagination.total} produk</p>
+            <div className="flex gap-2">
+              <button 
+                disabled={pagination.current_page === 1}
+                onClick={() => handlePageChange(pagination.current_page - 1)}
+                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <button 
+                disabled={pagination.current_page === pagination.last_page}
+                onClick={() => handlePageChange(pagination.current_page + 1)}
+                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       )}
-    </AdminLayout>
+    </div>
   );
 }
 

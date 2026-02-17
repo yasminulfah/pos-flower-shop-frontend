@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true); 
@@ -11,6 +12,7 @@ function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,14 +23,19 @@ function Login() {
       if (isLogin) {
         const response = await api.post('/login', { email, password });
         
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('role', response.data.user.role);
+        login(response.data.access_token, response.data.user);
 
-        if (['admin', 'cashier', 'owner'].includes(response.data.user.role)) {
+        const role = response.data.user?.role;
+        console.log("Logged in role:", role);
+
+        if (['admin', 'owner'].includes(role)) {
           navigate('/admin/dashboard');
+        } else if (role === 'cashier') {
+          navigate('/admin/pos');
         } else {
-          navigate('/login');
+          navigate('/catalog');
         }
+
       } else {
         if (password !== confirmPassword) {
           setError('Passwords do not match!');
@@ -50,12 +57,8 @@ function Login() {
         setConfirmPassword('');
       }
     } catch (err) {
-      if (isLogin) {
-        setError('Invalid email or password!');
-      } else {
-        setError(err.response?.data?.message || 'Registration failed!');
-      }
-      console.error(err);
+      console.error("Login error details:", err.response?.data || err);
+      setError(err.response?.data?.message || 'Authentication failed!');
     }
   };
 
@@ -63,7 +66,8 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center text-pink-700">
-          {isLogin ? 'Login to Uma Bloemist' : 'Register Account'}
+          {isLogin ? 'Login to ' : 'Register to '}
+          <span className="text-pink-600">Uma Bloemist</span>
         </h2>
         
         {error && (
@@ -86,6 +90,7 @@ function Login() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                placeholder="Your Full Name"
                 required
               />
             </div>
@@ -98,6 +103,7 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+              placeholder="you@example.com"
               required
             />
           </div>
@@ -109,6 +115,7 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+              placeholder="••••••••"
               required
             />
           </div>
@@ -121,6 +128,7 @@ function Login() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -130,7 +138,7 @@ function Login() {
             type="submit"
             className="w-full bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700 transition duration-200"
           >
-            {isLogin ? 'Login' : 'Register'}
+            {isLogin ? 'Sign In' : 'Register'}
           </button>
         </form>
         
@@ -139,7 +147,7 @@ function Login() {
             onClick={() => setIsLogin(!isLogin)}
             className="text-pink-600 hover:underline"
           >
-            {isLogin ? "Don't have an account? Register" : 'Already have an account? Login'}
+            {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
           </button>
         </div>
       </div>

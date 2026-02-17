@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import AdminLayout from '../../layouts/AdminLayout';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
@@ -11,8 +10,9 @@ function Dashboard() {
     pendingOrders: 0,
     salesGraph: [],
     lowStockProducts: [],
+    bestSellerProducts: [],
   });
-  // State filter 
+  
   const [filterSource, setFilterSource] = useState('online'); 
 
   useEffect(() => {
@@ -40,8 +40,11 @@ function Dashboard() {
     }]
   };
 
+  const handleDownload = () => {
+    window.open(`http://localhost:8000/api/download-report?source=${filterSource}`, '_blank');
+  };
+
   return (
-    <AdminLayout>
       <div className="p-6 bg-gray-50 min-h-screen">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
@@ -81,22 +84,57 @@ function Dashboard() {
           <Line data={chartData} />
         </div>
 
-        {/* Alert Stok Rendah */}
-        {stats.lowStockProducts.length > 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-semibold text-red-700 mb-2">Low Stock Warning!</h2>
-            <ul className="list-disc list-inside text-red-800">
-              {stats.lowStockProducts.map(item => (
-                <li key={item.id}>
-                  {item.product.product_name} - {item.variant_name} : 
-                  <span className="font-bold"> {item.stock} left</span>
-                </li>
-              ))}
-            </ul>
+        {/* Laporan Produk Terlaris */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Top Selling Products ({filterSource})</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="p-2">Product</th>
+                    <th className="p-2">Variant</th>
+                    <th className="p-2 text-right">Sold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.bestSellerProducts.map((item, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="p-2 font-medium">{item.product_name}</td>
+                      <td className="p-2 text-gray-600">{item.variant_name}</td>
+                      <td className="p-2 text-right font-bold text-pink-600">{item.total_sold}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
+
+          {/* Alert Stok Rendah */}
+          <div className="bg-white p-6 rounded-lg shadow border-t-4 border-red-500">
+            <h2 className="text-xl font-semibold text-red-700 mb-4">Low Stock Warning!</h2>
+            {stats.lowStockProducts.length > 0 ? (
+              <ul className="space-y-2 text-red-800">
+                {stats.lowStockProducts.map(item => (
+                  <li key={item.id} className="flex justify-between bg-red-50 p-2 rounded">
+                    <span>{item.product.product_name} - {item.variant_name}</span>
+                    <span className="font-bold">{item.stock} left</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-green-600 font-medium">All products are well stocked.</p>
+            )}
+          </div>
+        </div>
+        <button 
+            onClick={handleDownload}
+            className="bg-pink-600 text-white p-2 px-4 rounded-lg hover:bg-pink-700 flex items-center gap-2"
+        >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Download Excel
+        </button>
       </div>
-    </AdminLayout>
   );
 }
 

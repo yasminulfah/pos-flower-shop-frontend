@@ -9,6 +9,7 @@ function PrintReceipt() {
 
   useEffect(() => {
     const fetchOrder = async () => {
+      console.log("Mencoba mengambil order ID:", id);
       try {
         const response = await api.get(`/order/${id}`);
         setOrder(response.data.data);
@@ -20,6 +21,7 @@ function PrintReceipt() {
       } catch (error) {
         console.error("Failed to fetch order", error);
         setLoading(false);
+        alert("Gagal mengambil data pesanan. ID: " + id);
       }
     };
     fetchOrder();
@@ -61,8 +63,7 @@ function PrintReceipt() {
           </tr>
         </thead>
         <tbody>
-          {order.order_items.map((item, index) => {
-            // Ambil harga dari price_at_buy (berdasarkan log)
+          {(order.order_items || order.orderItems).map((item, index) => {
             const price = Number(item.price_at_buy) || 0;
             const qty = Number(item.quantity) || 0;
             const totalItem = price * qty;
@@ -71,8 +72,8 @@ function PrintReceipt() {
               <tr key={index}>
                 <td>
                   {/* Ambil nama produk dari product_variant -> product */}
-                  {item.product_variant?.product?.product_name || 'Unknown'}
-                  ({item.product_variant?.variant_name || '-'})
+                  {item.product_variant?.product?.product_name || item.productVariant?.product?.product_name || 'Unknown'}
+                  ({item.product_variant?.variant_name || item.productVariant?.variant_name || '-'})
                 </td>
                 <td className="text-center">{qty}</td>
                 <td className="text-right">

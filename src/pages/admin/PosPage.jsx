@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import AdminLayout from '../../layouts/AdminLayout'; 
 import api from '../../api/axios'; 
-import ProductGrid from '../../components/ProductGrid';
 import CartSidebar from '../../components/CartSidebar';
+import PosProductList from '../../components/PosProductList';
 
 function PosPage() {
   const [products, setProducts] = useState([]);
@@ -17,6 +16,7 @@ function PosPage() {
   const [selectedPackaging, setSelectedPackaging] = useState('');
   const [pendingOrders, setPendingOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +28,11 @@ function PosPage() {
           api.get('/orders/pending')
         ]);
 
-        setProducts(prodRes.data.data);
+        // 🛠️ PERBAIKAN: Mengambil data dari struktur Laravel pagination
+        // Jika API menggunakan ->paginate(), datanya ada di .data.data
+        // Jika API menggunakan ->get(), datanya ada di .data
+        setProducts(prodRes.data.data.data || prodRes.data.data); 
+        
         setShippings(shipRes.data.data); 
         setPackagings(packRes.data.data);
         setPendingOrders(pendingRes.data.data);
@@ -42,6 +46,9 @@ function PosPage() {
     fetchData();
   }, []);
 
+  // ... fungsi-fungsi lainnya (addToCart, handleCheckout, dll) tetap sama ...
+  
+  // 🛠️ Pastikan fungsi-fungsi pendukung ada di sini agar kode tidak error
   useEffect(() => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -98,14 +105,20 @@ function PosPage() {
       amount_paid: Number(cashPaid) || 0,
       amount_change: cashChange,
       grand_total: totalPrice,
+      order_id: currentOrderId,
     };
 
     try {
       const response = await api.post('/order', checkoutData);
+
       if (response.data.success) {
         alert("Order created: " + response.data.data.order_number);
-        window.open(`/admin/print-receipt/${response.data.data.id}`, '_blank');
+        const orderIdToPrint = response.data.data.id;
+        window.open(`/admin/print-receipt/${orderIdToPrint}`, '_blank');
+
         requestFormReset();
+
+        setPendingOrders(pendingOrders.filter(o => o.id !== currentOrderId));
       }
     } catch (error) {
       alert(error.response?.data?.message || "Order failed.");
@@ -119,6 +132,7 @@ function PosPage() {
     setCashChange(0);
     setSelectedShipping('');
     setSelectedPackaging('');
+    setCurrentOrderId(null);
   }
 
   const handleHoldOrder = async () => {
@@ -126,10 +140,10 @@ function PosPage() {
 
     try {
       const payload = {
+        order_id: currentOrderId,
         items: cart.map(item => ({
           variant_id: item.variant_id,
           quantity: item.quantity,
-          price: item.price
         })),
 
         customer_name: customerName,
@@ -137,9 +151,17 @@ function PosPage() {
         package_id: selectedPackaging,
         grand_total: totalPrice
       };
+
       const response = await api.post('/orders/hold', payload);
+
+      setCurrentOrderId(response.data.data.id);
       
-      setPendingOrders([...pendingOrders, response.data.data]);
+      if (currentOrderId) {
+        setPendingOrders(pendingOrders.map(o => o.id === currentOrderId ? response.data.data : o));
+      } else {
+        setPendingOrders([...pendingOrders, response.data.data]);
+      }
+
       requestFormReset();
       alert("Order ditahan!");
       } catch (error) {
@@ -149,64 +171,65 @@ function PosPage() {
   };
 
   const handleResumeOrder = (order) => {
-    setCart(order.items);
+    setCurrentOrderId(order.id);
+    const itemsToMap = order.items || [];
+
+    const formattedItems = itemsToMap.map(item => ({
+      product_id: item.product_id,
+      variant_id: item.variant_id,
+      name: item.name || `${item.product_name} - ${item.variant_name}`, 
+      price: Number(item.price),
+      quantity: item.quantity,
+    }));
+
+    setCart(formattedItems);
     setCustomerName(order.customer_name || '');
     setSelectedShipping(order.shipping_id || '');
     setSelectedPackaging(order.package_id || '');
-    setPendingOrders(pendingOrders.filter(o => o.id !== order.id));
   };
 
   return (
-    <AdminLayout>
+    <div>
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">POS Cashier</h1>
-        {loading ? (
+      {loading ? (
         <div className="text-center">Loading POS...</div>
-        ) : (
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 gap-5">
-            <div className="flex flex-col gap-2">
-              {/* Tombol Hold */}
-              <button onClick={handleHoldOrder} className="w-fit bg-pink-500 text-white p-2 rounded">Hold Order</button>
-              {/* Daftar Pending Orders */}
-              <div className="mb-4 p-4 border rounded bg-gray-50">
-                <h3 className="font-bold mb-2">Pending Orders:</h3>
-                <div className="flex flex-wrap gap-2">
-                {pendingOrders.map(order => (
-                  <button key={order.id} onClick={() => handleResumeOrder(order)} className="bg-gray-200 hover:bg-gray-300 p-2 rounded text-sm">
-                    Order #{order.id} - {order.customer_name || 'No Name'}
-                  </button>
-                ))}
-                </div>  
-              </div>
-            </div>
-            <ProductGrid 
-            products={products} 
-            addToCart={addToCart} />
+            {/* Komponen Daftar Produk POS */}
+            <PosProductList 
+              products={products}
+              addToCart={addToCart}
+              loading={loading}
+            />
           </div>
 
-        <div className="md:col-span-1">
-          <CartSidebar
-            cart={cart}
-            customerName={customerName}
-            setCustomerName={setCustomerName}
-            totalPrice={totalPrice}
-            cashPaid={cashPaid}
-            setCashPaid={setCashPaid}
-            cashChange={cashChange}
-            setCashChange={setCashChange}
-            shippings={shippings}
-            selectedShipping={selectedShipping}
-            setSelectedShipping={setSelectedShipping}
-            packagings={packagings}
-            selectedPackaging={selectedPackaging}
-            setSelectedPackaging={setSelectedPackaging}
-            handleCheckout={handleCheckout}
-            updateQuantity={updateQuantity}
-          />
+          <div className="md:col-span-1">
+            <CartSidebar
+              cart={cart}
+              customerName={customerName}
+              setCustomerName={setCustomerName}
+              totalPrice={totalPrice}
+              cashPaid={cashPaid}
+              setCashPaid={setCashPaid}
+              cashChange={cashChange}
+              setCashChange={setCashChange}
+              shippings={shippings}
+              selectedShipping={selectedShipping}
+              setSelectedShipping={setSelectedShipping}
+              packagings={packagings}
+              selectedPackaging={selectedPackaging}
+              setSelectedPackaging={setSelectedPackaging}
+              handleCheckout={handleCheckout}
+              updateQuantity={updateQuantity}
+              handleHoldOrder={handleHoldOrder}
+              pendingOrders={pendingOrders}
+              handleResumeOrder={handleResumeOrder}
+            />
+          </div>
         </div>
-      </div>
-    )}
-    </AdminLayout>
+      )}
+    </div>
   );
 }
 export default PosPage;
