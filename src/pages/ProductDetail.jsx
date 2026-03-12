@@ -41,15 +41,15 @@ function ProductDetail() {
     alert(`${product.product_name} (${variant.variant_name}) berhasil ditambahkan!`);
   };
 
-  if (loading) return <div className="text-center py-10">Memuat produk...</div>;
-  if (!product) return <div className="text-center py-10">Produk tidak ditemukan.</div>;
+  if (loading) return <div className="text-center py-10">Loading Products...</div>;
+  if (!product) return <div className="text-center py-10">Product Not Found</div>;
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white p-6 rounded-2xl shadow-sm">
           <div className="border-t pt-8">
-            <h3 className="text-2xl font-bold mb-6">Pilih Varian</h3>
+            <h3 className="text-2xl font-bold mb-6">Choose Variants</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {product.variants?.map(variant => (
@@ -67,7 +67,7 @@ function ProductDetail() {
                     disabled={variant.stock <= 0}
                     className={`mt-auto w-full py-3 rounded-lg font-semibold text-sm transition-colors ${
                       variant.stock > 0 
-                      ? 'bg-gray-900 text-white hover:bg-gray-800'
+                      ? 'bg-pink-50 text-pink-600 hover:bg-pink-100'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >

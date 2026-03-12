@@ -90,7 +90,7 @@ function ProductCatalog() {
             onChange={handleFilterChange}
             className="border border-gray-200 rounded-full px-5 py-3 bg-white focus:ring-2 focus:ring-pink-200 outline-none"
           >
-            <option value="">Semua Kategori</option>
+            <option value="">All Categories</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.category_name}</option>
             ))}
@@ -99,14 +99,18 @@ function ProductCatalog() {
 
         {/* 🛠️ Grid Produk */}
         {loading ? (
-          <div className="text-center py-10">Memuat produk...</div>
+          <div className="text-center py-10">Loading Products...</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map(product => (
               <div key={product.id} className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
                 <div className="relative pb-[100%]">
                   <img 
-                    src={`${API_URL}${product.main_image}`} 
+                    src={
+                      product.main_image?.startsWith('/storage')
+                        ? `${API_URL}${product.main_image}`
+                        : `${API_URL}/storage/${product.main_image}`
+                    } 
                     alt={product.product_name}
                     className="absolute h-full w-full object-cover"
                   />

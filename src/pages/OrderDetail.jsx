@@ -138,11 +138,6 @@ const OrderDetail = () => {
           {order.order_items.map(item => (
             <div key={item.id} className="flex justify-between items-center border-b pb-3">
               <div className="flex gap-4 items-center">
-                <img 
-                  src={`http://localhost:8000/${item.product_variant.product.main_image}`} 
-                  alt={item.product_variant.product.product_name}
-                  className="w-16 h-16 object-cover rounded"
-                />
                 <div>
                   <p className="font-medium text-gray-800">
                     {item.product_variant.product.product_name}
