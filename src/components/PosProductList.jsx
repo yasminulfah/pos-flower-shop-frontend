@@ -19,6 +19,7 @@ const PosProductList = ({ products, addToCart, loading }) => {
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-4 gap-4">
         <h2 className="text-xl font-bold text-gray-800">Daftar Produk</h2>
+        
         {/* Input Pencarian Cepat */}
         <input
           type="text"

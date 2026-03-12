@@ -61,7 +61,7 @@ function ProductDetail() {
                   <p className="text-2xl font-bold text-pink-600 mb-2">Rp {Number(variant.price).toLocaleString('id-ID')}</p>
                   <p className="text-sm text-gray-500 mb-4">Stok: {variant.stock}</p>
                   
-                  {/* 3. Tombol Add to Cart langsung di dalam kartu varian */}
+                  {/* Add to cart */}
                   <button 
                     onClick={() => handleAddToCart(variant)}
                     disabled={variant.stock <= 0}

@@ -45,10 +45,7 @@ function PosPage() {
     };
     fetchData();
   }, []);
-
-  // ... fungsi-fungsi lainnya (addToCart, handleCheckout, dll) tetap sama ...
   
-  // 🛠️ Pastikan fungsi-fungsi pendukung ada di sini agar kode tidak error
   useEffect(() => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -95,7 +92,7 @@ function PosPage() {
     if (cart.length === 0) return alert("Cart is empty!");
     if (!selectedShipping || !selectedPackaging) return alert("Please select Shipping and Packaging!");
 
-    // 2. Hitung ulang amount_paid dan amount_change berdasarkan metode pembayaran
+    // Hitung ulang amount_paid dan amount_change berdasarkan metode pembayaran
     const finalAmountPaid = paymentMethod === 'cash' ? (Number(cashPaid) || 0) : totalPrice;
     const finalAmountChange = paymentMethod === 'cash' ? cashChange : 0;
 
@@ -105,10 +102,10 @@ function PosPage() {
       shipping_id: selectedShipping,
       package_id: selectedPackaging,
       
-      // 3. Gunakan metode pembayaran dari sidebar
+      // Gunakan metode pembayaran dari sidebar
       payment_method: paymentMethod, 
       
-      // 4. Pastikan source adalah 'offline' untuk transaksi kasir
+      // Pastikan source adalah 'offline' untuk transaksi kasir
       source: 'offline', 
       
       amount_paid: finalAmountPaid,
@@ -118,7 +115,6 @@ function PosPage() {
     };
 
     try {
-      // 5. PASTIKAN ENDPOINT ADALAH '/checkout' sesuai Controller Laravel
       const response = await api.post('/order', checkoutData);
 
       if (response.data.success) {
@@ -206,6 +202,7 @@ function PosPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 gap-5">
+            
             {/* Komponen Daftar Produk POS */}
             <PosProductList 
               products={products}

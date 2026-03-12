@@ -9,8 +9,8 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    customer_name: '', // Sesuaikan nama field dengan backend (di code sebelumnya ada customer_name)
-    shipping_address: '', // Sesuaikan nama field
+    customer_name: '', 
+    shipping_address: '', 
     phone: '',
     notes: '',
     payment_method: 'bank_transfer',
@@ -32,9 +32,8 @@ const Checkout = () => {
     }
 
     const payload = {
-      customer_name: formData.name, // Mapping data
-      shipping_address: formData.address, // Mapping data
-      // note: Anda mungkin perlu menambahkan field untuk shipping_id atau package_id jika ada
+      customer_name: formData.name, 
+      shipping_address: formData.address, 
       
       items: cartItems.map(item => ({
         product_variant_id: item.variant_id,
@@ -43,25 +42,21 @@ const Checkout = () => {
       
       grand_total: cartSubtotal,
       
-      // --- INI SANGAT PENTING ---
-      source: 'online', // <-- Ini membuat status jadi 'pending' di Laravel
-      // --------------------------
+      source: 'online', 
       
       payment_method: formData.payment_method,
-      amount_paid: 0, // Customer online belum bayar
+      amount_paid: 0, 
       amount_change: 0,
     };
 
     try {
-      // --- PERBAIKAN ENDPOINT DI SINI ---
-      const response = await api.post('/order', payload); // Gunakan '/checkout' sesuai Controller Laravel
-      // ---------------------------------
+      const response = await api.post('/order', payload);
       
       if (response.data.success) {
         clearCart(); // Kosongkan keranjang setelah berhasil
         navigate('/order-success', { 
             state: { 
-                order: response.data.data, // Berisi order_number, total, dll
+                order: response.data.data, 
             } 
         });
       }

@@ -71,7 +71,6 @@ function PrintReceipt() {
             return (
               <tr key={index}>
                 <td>
-                  {/* Ambil nama produk dari product_variant -> product */}
                   {item.product_variant?.product?.product_name || item.productVariant?.product?.product_name || 'Unknown'}
                   ({item.product_variant?.variant_name || item.productVariant?.variant_name || '-'})
                 </td>
@@ -91,7 +90,6 @@ function PrintReceipt() {
           <span>Rp {(Number(order.grand_total) ?? 0).toLocaleString('id-ID')}</span>
         </div>
   
-        {/* --- PASTIKAN FIELD SESUAI DENGAN BACKEND --- */}
         <div className="flex justify-between mt-1">
           <span>PAY (Cash)</span>
           <span>Rp {(Number(order.amount_paid) ?? 0).toLocaleString('id-ID')}</span>

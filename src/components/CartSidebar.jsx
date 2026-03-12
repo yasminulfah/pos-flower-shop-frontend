@@ -1,4 +1,4 @@
-import { useState } from 'react'; // 1. Impor useState
+import { useState } from 'react';
 import ShippingSelector from './ShippingSelector';
 import PackagingSelector from './PackagingSelector';
 
@@ -17,14 +17,14 @@ function CartSidebar({
   packagings,
   selectedPackaging,
   setSelectedPackaging,
-  handleCheckout, // <--- FUNGSI INI AKAN KITA MODIFIKASI
+  handleCheckout, 
   updateQuantity,
   handleHoldOrder,
   pendingOrders,
   handleResumeOrder
 }) {
 
-  // 2. State untuk Metode Pembayaran di Sidebar
+  // State untuk Metode Pembayaran di Sidebar
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
   console.log("CartSidebar render, cart data:", cart);
@@ -33,7 +33,7 @@ function CartSidebar({
   // tapi harus pastikan user sudah bayar nominal tertentu (diatur di backend)
   const canCheckout = cart.length > 0;
 
-  // 3. Fungsi modifikasi untuk mengirim data pembayaran ke parent (POS Component)
+  // Fungsi modifikasi untuk mengirim data pembayaran ke parent (POS Component)
   const onCheckout = () => {
     handleCheckout(paymentMethod); // Kirim metode pembayaran ke fungsi checkout
   };
@@ -131,7 +131,7 @@ function CartSidebar({
 
     <div className="mt-6 border-t pt-4 space-y-3">
       <button
-        onClick={onCheckout} // <--- Gunakan fungsi baru
+        onClick={onCheckout} 
         disabled={!canCheckout || (paymentMethod === 'cash' && cashChange < 0)} 
         className={`w-full text-white py-3 rounded-lg mt-4 font-semibold transition ${
           canCheckout && (paymentMethod === 'bank_transfer' || cashChange >= 0)

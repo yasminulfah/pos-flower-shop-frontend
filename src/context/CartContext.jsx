@@ -12,7 +12,6 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // 🛠️ PERBAIKAN: Terima satu argumen 'item'
   const addToCart = (item) => {
     setCartItems(prev => {
       // Cari berdasarkan variant_id

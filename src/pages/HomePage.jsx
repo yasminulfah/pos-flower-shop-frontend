@@ -13,7 +13,7 @@ function HomePage() {
                     <p className="font-bold text-sm">Your Favorite Flower Studio</p>
                 </div>
                 <h1 className="text-5xl font-extrabold text-pink-500">The Ultimate Flower Shopping Destination</h1>
-                <Link to="/login" className="w-fit bg-pink-500 p-2 text-lg font-semibold hover:font-bold text-white rounded-lg px-4">Shop Now</Link>
+                <Link to="/login" className="w-fit bg-pink-500 p-2 text-lg font-semibold hover:font-bold text-white rounded-lg px-4">Sign In</Link>
             </div>
         </div>
     </div>

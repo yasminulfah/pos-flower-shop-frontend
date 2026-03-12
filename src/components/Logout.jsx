@@ -1,21 +1,19 @@
-// src/components/Logout.jsx
 import { useNavigate } from 'react-router-dom';
+import { FiLogOut } from "react-icons/fi";
 import api from '../api/axios';
 
-const Logout = ({ className = "" }) => {
+const Logout = ({ className = "", showText = true }) => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
+        if (!window.confirm("Are you sure you want to sign out?")) return;
         try {
-            // 1. Panggil API logout di backend
             await api.post('/logout');
         } catch (error) {
             console.error("Logout backend error:", error.response?.data || error.message);
         } finally {
-            // 2. Hapus token dan data sesi di frontend
+            // Hapus token dan data sesi di frontend
             localStorage.removeItem('token');
-            
-            // 3. Arahkan kembali ke halaman login
             navigate('/');
         }
     };
@@ -23,10 +21,10 @@ const Logout = ({ className = "" }) => {
     return (
         <button 
             onClick={handleLogout} 
-            // 🛠️ ClassName bisa dikustomisasi dari luar
-            className={`cursor-pointer ${className}`} 
+            className={`flex items-center gap-2 cursor-pointer ${className}`} 
         >
-            Logout
+            <FiLogOut size={18} />
+            {showText && "Logout"}
         </button>
     );
 };
