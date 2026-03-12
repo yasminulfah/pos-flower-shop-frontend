@@ -52,6 +52,12 @@ function Dashboard() {
     a.click();
   };
 
+  // alert low stock
+  const lowestStockProduct =
+  stats.lowStockProducts?.length > 0
+    ? [...stats.lowStockProducts].sort((a, b) => a.stock - b.stock)[0]
+    : null;
+
   return (
       <div className="p-6 bg-gray-50 min-h-screen">
         <div className="flex justify-between items-center mb-6">
@@ -67,6 +73,20 @@ function Dashboard() {
             <option value="offline">Offline</option>
           </select>
         </div>
+
+        {/* alert low stock */}
+        {lowestStockProduct && (
+          <div className="mb-6 bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg flex justify-between items-center">
+            <div>
+              <p className="font-semibold">
+                ⚠️ Low Stock Alert
+              </p>
+              <p className="text-sm">
+                {lowestStockProduct.product?.product_name} - {lowestStockProduct.variant_name} only <span className="font-bold">{lowestStockProduct.stock}</span> left.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Grid Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

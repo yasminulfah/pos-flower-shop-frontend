@@ -39,14 +39,14 @@ function AdminLayout({ children }) {
             to="/admin/order/history"
             className="flex items-center gap-2 p-2 rounded hover:bg-pink-100"
           >
-            📑 {sidebarOpen && "Order History"}
+            📋 {sidebarOpen && "Order History"}
           </Link>
 
           <Link
             to="/admin/products"
             className="flex items-center gap-2 p-2 rounded hover:bg-pink-100"
           >
-            📋 {sidebarOpen && "Product Management"}
+            📝 {sidebarOpen && "Product Management"}
           </Link>
 
           <Logout

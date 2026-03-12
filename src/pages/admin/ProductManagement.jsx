@@ -62,7 +62,7 @@ function ProductManagement() {
       });
     } catch (error) {
       console.error(error);
-      alert("Gagal mengambil produk");
+      alert("Failed to fetch the products");
     } finally {
       setLoading(false);
     }
@@ -189,15 +189,15 @@ function ProductManagement() {
 
       alert(
         editingId
-          ? "Produk berhasil diperbarui"
-          : "Produk berhasil ditambahkan"
+          ? "Product updated successfully."
+          : "Product added successfully."
       );
 
       fetchProducts();
       resetForm();
     } catch (error) {
       console.error(error.response?.data);
-      alert("Terjadi kesalahan saat menyimpan produk");
+      alert("An error occurred while saving the product.");
     }
   };
 
@@ -225,15 +225,15 @@ function ProductManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Yakin hapus produk?")) return;
+    if (!window.confirm("Are you sure to delete this product?")) return;
 
     try {
       await api.delete(`/products/${id}`);
       fetchProducts();
-      alert("Produk berhasil dihapus");
+      alert("Product deleted succesfully");
     } catch (error) {
       console.error(error);
-      alert("Gagal menghapus produk");
+      alert("Failed to delete product");
     }
   };
 
@@ -285,7 +285,7 @@ function ProductManagement() {
             type="file"
             name="main_image"
             onChange={handleInputChange}
-            className="border p-2 rounded col-span-2"/>
+            className="border p-2 rounded col-span-2 hover:underline hover:font-semibold"/>
         </div>
 
         <h3 className="font-semibold mb-2">Variants</h3>
@@ -293,7 +293,7 @@ function ProductManagement() {
         {formData.variants.map((variant, index) => (
           <div
             key={index}
-            className="grid grid-cols-5 gap-2 mb-2">
+            className="grid grid-cols-5 gap-2 mb-">
             <input
               name="variant_name"
               value={variant.variant_name}
@@ -301,7 +301,7 @@ function ProductManagement() {
                 handleVariantChange(index, e)
               }
               placeholder="Variant"
-              className="border p-1"/>
+              className="border p-1 rounded"/>
 
             <input
               type="number"
@@ -311,7 +311,7 @@ function ProductManagement() {
                 handleVariantChange(index, e)
               }
               placeholder="Price"
-              className="border p-1"/>
+              className="border p-1 rounded"/>
 
             <input
               type="number"
@@ -321,7 +321,7 @@ function ProductManagement() {
                 handleVariantChange(index, e)
               }
               placeholder="Stock"
-              className="border p-1"/>
+              className="border p-1 rounded"/>
 
             <input
               name="sku"
@@ -330,9 +330,9 @@ function ProductManagement() {
                 handleVariantChange(index, e)
               }
               placeholder="SKU"
-              className="border p-1"/>
+              className="border p-1 rounded"/>
 
-            <div className="flex gap-1">
+            <div className="flex gap-1 border p-2 rounded w-full overflow-hidden hover:underline hover:font-semibold">
               <input
                 type="file"
                 name="detail_image"
@@ -381,6 +381,20 @@ function ProductManagement() {
         <p>Loading...</p>
       ) : (
         <div className="bg-white rounded shadow">
+          {/* Filter & Search */}
+          <div className="bg-white p-4 rounded-lg shadow mb-6 flex gap-4 items-center">
+            
+            <input
+              type="text"
+              name="search"
+              placeholder="Search product..."
+              value={filters.search}
+              onChange={handleFilterChange}
+              className="border p-2 rounded w-64"
+            />
+
+          </div>
+
           <table className="min-w-full">
             <thead>
               <tr>

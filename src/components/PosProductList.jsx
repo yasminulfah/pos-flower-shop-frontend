@@ -16,14 +16,14 @@ const PosProductList = ({ products, addToCart, loading }) => {
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-      <div className="flex justify-between items-center mb-4 gap-4">
-        <h2 className="text-xl font-bold text-gray-800">Daftar Produk</h2>
+    <div className="bg-white p-2 lg:p-4 rounded-lg shadow-sm border border-gray-100">
+      <div className="flex justify-between items-center mb-4 gap-2 lg:gap-4">
+        <h2 className="text-xl font-bold text-gray-800">List Products</h2>
         
         {/* Input Pencarian Cepat */}
         <input
           type="text"
-          placeholder="Cari produk..."
+          placeholder="Search product..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border border-gray-300 rounded-md p-2 w-64 text-sm"
@@ -31,7 +31,7 @@ const PosProductList = ({ products, addToCart, loading }) => {
       </div>
 
       {/* Grid Produk */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-1">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-1">
         {filteredProducts.length > 0 ? (
           filteredProducts.map(product => (
             <div key={product.id} className="border rounded-lg p-3 hover:border-pink-300 transition-colors bg-gray-50 flex flex-col">
@@ -53,7 +53,7 @@ const PosProductList = ({ products, addToCart, loading }) => {
                     }`}
                   >
                     <div className="font-medium truncate">{variant.variant_name}</div>
-                    <div className="flex justify-between items-center mt-1">
+                    <div className="flex justify-between items-center mt-1 gap-2">
                         <span className="font-bold text-pink-700">Rp {Number(variant.price).toLocaleString('id-ID')}</span>
                         <span className={`px-1.5 py-0.5 rounded text-xs ${variant.stock > 5 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                             Stok: {variant.stock}
@@ -66,7 +66,7 @@ const PosProductList = ({ products, addToCart, loading }) => {
           ))
         ) : (
           <div className="col-span-full text-center py-6 text-gray-500">
-            Produk tidak ditemukan.
+            Product Not Found.
           </div>
         )}
       </div>
