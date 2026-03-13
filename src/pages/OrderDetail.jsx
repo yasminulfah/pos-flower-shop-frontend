@@ -16,7 +16,7 @@ const OrderDetail = () => {
       setOrder(response.data.data);
     } catch (error) {
       console.error('Error fetching order', error);
-      alert('Gagal mengambil detail pesanan.');
+      alert('Failed to fetch order detail.');
     } finally {
       setLoading(false);
     }
@@ -28,16 +28,16 @@ const OrderDetail = () => {
 
   // --- FUNGSI: Membatalkan Pesanan ---
   const handleCancelOrder = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) return;
+    if (!window.confirm('Are you sure to cancel this order?')) return;
     
     setCancelling(true);
     try {
       await api.post(`/my-orders/${id}/cancel`);
-      alert('Pesanan berhasil dibatalkan.');
+      alert('Order cancel successfully.');
       fetchOrder(); // Refresh data setelah berhasil
     } catch (error) {
       console.error('Error cancelling order', error);
-      alert(error.response?.data?.message || 'Gagal membatalkan pesanan.');
+      alert(error.response?.data?.message || 'Failed to cancel order.');
     } finally {
       setCancelling(false);
     }
@@ -53,14 +53,14 @@ const OrderDetail = () => {
     if (order.status === 'cancelled') {
         return (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6 text-center font-semibold">
-                Pesanan ini telah dibatalkan.
+                This order has been cancelled.
             </div>
         );
     }
 
     return (
       <div className="bg-white p-6 rounded-lg shadow border mb-6">
-        <h2 className="text-lg font-semibold mb-6">Status Pesanan</h2>
+        <h2 className="text-lg font-semibold mb-6">Order Status</h2>
         <div className="relative flex items-center justify-between">
           {statusSteps.map((step, index) => (
             <div key={step} className="flex flex-col items-center flex-1 relative z-10">
@@ -88,11 +88,11 @@ const OrderDetail = () => {
 
   // --- RENDER LOADING / NOT FOUND ---
   if (loading) {
-    return <div className="container mx-auto px-4 py-16 text-center">Loading data pesanan...</div>;
+    return <div className="container mx-auto px-4 py-16 text-center">Loading order data...</div>;
   }
 
   if (!order) {
-    return <div className="container mx-auto px-4 py-16 text-center">Pesanan tidak ditemukan.</div>;
+    return <div className="container mx-auto px-4 py-16 text-center">Order not found.</div>;
   }
 
   // --- RENDER UI ---
@@ -103,7 +103,7 @@ const OrderDetail = () => {
       </Link>
       
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Detail Pesanan #{order.order_number}</h1>
+        <h1 className="text-2xl font-bold">Order Details #{order.order_number}</h1>
         
         {/* Tombol Batalkan hanya muncul jika status 'pending' */}
         {order.status === 'pending' && (
@@ -112,7 +112,7 @@ const OrderDetail = () => {
             disabled={cancelling}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition disabled:bg-gray-400"
           >
-            {cancelling ? 'Membatalkan...' : 'Batalkan Pesanan'}
+            {cancelling ? 'Cancelling...' : 'Cancel Order'}
           </button>
         )}
       </div>

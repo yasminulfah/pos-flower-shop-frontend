@@ -1,20 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../api/axios';
+import ShippingSelector from '../components/ShippingSelector';
+import PackagingSelector from '../components/PackagingSelector';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, cartSubtotal, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
+  const [selectedPackaging, setSelectedPackaging] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState("");
+  const [shippings, setShippings] = useState([]);
+  const [packagings, setPackagings] = useState([]);
 
   const [formData, setFormData] = useState({
     customer_name: '', 
     shipping_address: '', 
-    phone: '',
-    notes: '',
-    payment_method: 'bank_transfer',
+    greeting_card_note: '',
+    delivery_at: '',
+    payment_method: '',
   });
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const shippingRes = await api.get("/shippings");
+        const packagingRes = await api.get("/packagings");
+
+        setShippings(shippingRes.data.data);
+        setPackagings(packagingRes.data.data);
+
+      } catch (error) {
+        console.error("Failed to fetch options", error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,14 +49,19 @@ const Checkout = () => {
     setLoading(true);
     
     if (cartItems.length === 0) {
-      alert("Keranjang kosong!");
+      alert("Cart is empty!");
+      setLoading(false);
       navigate('/catalog');
       return;
     }
 
     const payload = {
-      customer_name: formData.name, 
-      shipping_address: formData.address, 
+      customer_name: formData.customer_name, 
+      shipping_address: formData.shipping_address, 
+      shipping_id: selectedShipping,
+      package_id: selectedPackaging,
+      delivery_at: formData.delivery_at,
+      greeting_card_note: formData.greeting_card_note,
       
       items: cartItems.map(item => ({
         product_variant_id: item.variant_id,
@@ -62,7 +90,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || 'Gagal memproses pesanan.');
+      alert(error.response?.data?.message || 'Order failed.');
     } finally {
       setLoading(false);
     }
@@ -74,12 +102,68 @@ const Checkout = () => {
         
         {/* Detail Tagihan */}
         <div className="md:col-span-2">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Invoice Details</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Details</h2>
           <div className="space-y-4">
-            <input type="text" name="name" placeholder="Full Name *" onChange={handleInputChange} className="w-full border p-3 rounded" required />
-            <textarea name="address" placeholder="Address *" onChange={handleInputChange} className="w-full border p-3 rounded" rows="3" required></textarea>
-            <input type="tel" name="phone" placeholder="Phone Number *" onChange={handleInputChange} className="w-full border p-3 rounded" required />
-            <textarea name="notes" placeholder="Notes (opsional)" onChange={handleInputChange} className="w-full border p-3 rounded" rows="2"></textarea>
+            {/* Customer Name */}
+            <input
+              type="text"
+              name="customer_name"
+              placeholder="Customer Name *"
+              onChange={handleInputChange}
+              className="w-full border p-3 rounded"
+              required
+            />
+            {/* Delivery Address */}
+            <textarea
+              name="shipping_address"
+              placeholder="Delivery Address *"
+              onChange={handleInputChange}
+              className="w-full border p-3 rounded"
+              rows="3"
+              required
+            />
+            {/* Delivery Date */}
+            <input
+              type="datetime-local"
+              name="delivery_at"
+              onChange={handleInputChange}
+              className="w-full border p-3 rounded"
+              required
+            />
+            {/* Shipping */}
+            <ShippingSelector
+              shippings={shippings}
+              selectedShipping={selectedShipping}
+              setSelectedShipping={setSelectedShipping}
+            />
+
+            {/* Packaging */}
+            <PackagingSelector
+              packagings={packagings}
+              selectedPackaging={selectedPackaging}
+              setSelectedPackaging={setSelectedPackaging}
+            />
+            {/* Greeting Card */}
+            <textarea
+              name="greeting_card_note"
+              placeholder="Greeting Card Message (optional)"
+              onChange={handleInputChange}
+              className="w-full border p-3 rounded"
+              rows="2"
+            />
+
+            {/* Payment Method */}
+            <select
+              name="payment_method"
+              onChange={handleInputChange}
+              className="w-full border p-3 rounded"
+              required
+            >
+              <option value="">Select Payment Method</option>
+              <option value="cash">Cash</option>
+              <option value="transfer">Bank Transfer</option>
+              <option value="ewallet">E-Wallet</option>
+            </select>
           </div>
         </div>
 
@@ -104,9 +188,9 @@ const Checkout = () => {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-gray-800 text-white py-3 rounded-lg mt-6 hover:bg-gray-900 font-semibold transition disabled:bg-gray-400"
+            className="w-full bg-pink-600 text-white py-3 rounded-lg mt-6 hover:bg-gray-900 font-semibold transition disabled:bg-gray-400"
           >
-            {loading ? 'Memproses...' : 'Buat Pesanan'}
+            {loading ? 'Processing...' : 'Make order'}
           </button>
         </div>
       </form>

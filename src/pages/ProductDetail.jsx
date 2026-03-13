@@ -10,7 +10,7 @@ function ProductDetail() {
   
   const { addToCart } = useCart(); 
 
-  const API_URL = 'http://127.0.0.1:8000';
+  const API_URL = 'https://uma-bloemist-production.up.railway.app';
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -38,7 +38,7 @@ function ProductDetail() {
     };
 
     addToCart(cartItem);
-    alert(`${product.product_name} (${variant.variant_name}) berhasil ditambahkan!`);
+    alert(`${product.product_name} (${variant.variant_name}) Added Successfully!`);
   };
 
   if (loading) return <div className="text-center py-10">Loading Products...</div>;
@@ -71,7 +71,7 @@ function ProductDetail() {
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    {variant.stock > 0 ? 'Add to Cart' : 'Stok Habis'}
+                    {variant.stock > 0 ? 'Add to Cart' : 'Sold Out'}
                   </button>
                 </div>
               ))}

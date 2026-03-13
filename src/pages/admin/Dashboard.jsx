@@ -48,7 +48,7 @@ function Dashboard() {
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const a = document.createElement("a");
     a.href = url;
-    a.download = "laporan-penjualan.xlsx";
+    a.download = "sales-report.xlsx";
     a.click();
   };
 

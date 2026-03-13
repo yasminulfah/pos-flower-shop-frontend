@@ -20,7 +20,7 @@ function ProductCatalog() {
     total: 0
   });
 
-  const API_URL = 'http://127.0.0.1:8000';
+  const API_URL = 'https://uma-bloemist-production.up.railway.app';
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -74,12 +74,13 @@ function ProductCatalog() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
+        
         {/* 🛠️ Filter & Search */}
         <div className="bg-white p-4 rounded-xl shadow-sm mb-8 flex flex-col md:flex-row gap-4">
           <input 
             type="text" 
             name="search"
-            placeholder="Cari produk impianmu..." 
+            placeholder="Search for your dream product..." 
             value={filters.search}
             onChange={handleFilterChange}
             className="flex-grow border border-gray-200 rounded-full px-5 py-3 focus:ring-2 focus:ring-pink-200 outline-none"

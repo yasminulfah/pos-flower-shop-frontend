@@ -28,9 +28,6 @@ function PosPage() {
           api.get('/orders/pending')
         ]);
 
-        // 🛠️ PERBAIKAN: Mengambil data dari struktur Laravel pagination
-        // Jika API menggunakan ->paginate(), datanya ada di .data.data
-        // Jika API menggunakan ->get(), datanya ada di .data
         setProducts(prodRes.data.data.data || prodRes.data.data); 
         
         setShippings(shipRes.data.data); 
@@ -196,12 +193,12 @@ function PosPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">POS Cashier</h1>
+      <h1 className="text-2xl font-semibold text-gray-800 mb-4">POS Cashier</h1>
       {loading ? (
         <div className="text-center">Loading POS...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 gap-5">
+          <div className="col-span-1 lg:col-span-2 gap-5">
             
             {/* Komponen Daftar Produk POS */}
             <PosProductList 
@@ -211,7 +208,7 @@ function PosPage() {
             />
           </div>
 
-          <div className="md:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <CartSidebar
               cart={cart}
               customerName={customerName}

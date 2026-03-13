@@ -25,10 +25,10 @@ const MyOrders = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mx-6">Riwayat Pesanan Saya</h1>
+      <h1 className="text-2xl font-bold mx-6">My Order History</h1>
       
       {orders.length === 0 ? (
-        <p>Belum ada pesanan.</p>
+        <p>No orders yet. Orders will appear here.</p>
       ) : (
         <div className="space-y-4 pt-5 px-6">
           {orders.map(order => (

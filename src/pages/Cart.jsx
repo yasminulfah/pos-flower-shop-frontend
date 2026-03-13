@@ -5,15 +5,15 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, cartSubtotal } = useCart();
   
-  const API_URL = 'http://127.0.0.1:8000';
+  const API_URL = 'https://uma-bloemist-production.up.railway.app';
 
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto p-10 text-center min-h-[50vh] flex flex-col justify-center items-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Keranjang Belanja</h1>
-        <p className="text-gray-500 mb-6">Keranjang Anda masih kosong.</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Cart</h1>
+        <p className="text-gray-500 mb-6">Your cart still empty.</p>
         <Link to="/catalog" className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700">
-          Mulai Belanja
+          Shop Now
         </Link>
       </div>
     );
@@ -27,11 +27,6 @@ const Cart = () => {
         <div className="md:col-span-2 space-y-4">
           {cartItems.map(item => (
             <div key={item.variant_id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center gap-4">
-              <img 
-                src={`${API_URL}${item.image}`}
-                alt={item.product_name} 
-                className="w-20 h-20 object-cover rounded-md" 
-              />
               <div className="flex-grow">
                 <h3 className="font-semibold text-gray-800">{item.product_name}</h3>
                 <p className="text-sm text-gray-500">Variant: {item.variant_name}</p>

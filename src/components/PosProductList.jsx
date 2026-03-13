@@ -2,9 +2,6 @@ import { useState } from 'react';
 
 const PosProductList = ({ products, addToCart, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
-
-  const API_URL = 'http://127.0.0.1:8000';
-
   const safeProducts = Array.isArray(products) ? products : [];
 
   const filteredProducts = safeProducts.filter(product =>
@@ -12,12 +9,12 @@ const PosProductList = ({ products, addToCart, loading }) => {
   );
 
   if (loading) {
-    return <div className="text-center py-4">Memuat produk...</div>;
+    return <div className="text-center py-4">Loading product...</div>;
   }
 
   return (
     <div className="bg-white p-2 lg:p-4 rounded-lg shadow-sm border border-gray-100">
-      <div className="flex justify-between items-center mb-4 gap-2 lg:gap-4">
+      <div className="flex flex-col my-4 lg:my-3 gap-4 lg:gap-2">
         <h2 className="text-xl font-bold text-gray-800">List Products</h2>
         
         {/* Input Pencarian Cepat */}
@@ -26,12 +23,12 @@ const PosProductList = ({ products, addToCart, loading }) => {
           placeholder="Search product..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-64 text-sm"
+          className="border border-gray-300 rounded-md p-2 w-full text-sm"
         />
       </div>
 
       {/* Grid Produk */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-1">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 overflow-y-auto max-h-[60vh] p-1">
         {filteredProducts.length > 0 ? (
           filteredProducts.map(product => (
             <div key={product.id} className="border rounded-lg p-3 hover:border-pink-300 transition-colors bg-gray-50 flex flex-col">

@@ -19,9 +19,9 @@ function PrintReceipt() {
           window.print();
         }, 500);
       } catch (error) {
-        console.error("Failed to fetch order", error);
+        console.error("Failed to fetch order data", error);
         setLoading(false);
-        alert("Gagal mengambil data pesanan. ID: " + id);
+        alert("Failed to fetch order data. ID: " + id);
       }
     };
     fetchOrder();

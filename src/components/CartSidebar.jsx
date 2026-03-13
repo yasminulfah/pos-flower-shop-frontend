@@ -24,18 +24,16 @@ function CartSidebar({
   handleResumeOrder
 }) {
 
-  // State untuk Metode Pembayaran di Sidebar
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
   console.log("CartSidebar render, cart data:", cart);
   
   // Update validasi: jika bank_transfer, cashChange tidak harus >= 0, 
-  // tapi harus pastikan user sudah bayar nominal tertentu (diatur di backend)
   const canCheckout = cart.length > 0;
 
   // Fungsi modifikasi untuk mengirim data pembayaran ke parent (POS Component)
   const onCheckout = () => {
-    handleCheckout(paymentMethod); // Kirim metode pembayaran ke fungsi checkout
+    handleCheckout(paymentMethod);
   };
 
   return (

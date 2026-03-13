@@ -15,7 +15,7 @@ function AdminLayout({ children }) {
 
         {/* Logo */}
         <div className="p-4 text-center font-bold text-pink-700 text-xl border-b">
-          {sidebarOpen ? "Uma Bloemist" : "🌸"}
+          {sidebarOpen ? "Uma Bloemist" : ""}
         </div>
 
         {/* Menu */}
