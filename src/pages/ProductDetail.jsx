@@ -55,7 +55,14 @@ function ProductDetail() {
               {product.variants?.map(variant => (
                 <div key={variant.id} className="border-2 border-gray-200 rounded-xl p-4 flex flex-col transition-all hover:border-pink-200 hover:shadow-sm">
                   {variant.detail_image && (
-                    <img src={`${API_URL}${variant.detail_image}`} alt={variant.variant_name} className="w-full h-48 object-cover rounded-lg mb-4"/>
+                    <img 
+                    src={
+                      variant.detail_image?.startsWith('/storage')
+                        ? `${API_URL}${variant.detail_image}`
+                        : `${API_URL}/storage/${variant.detail_image}`
+                    }  
+                    alt={variant.variant_name} 
+                    className="w-full h-48 object-cover rounded-lg mb-4"/>
                   )}
                   <h4 className="text-lg font-semibold mb-1">{variant.variant_name}</h4>
                   <p className="text-2xl font-bold text-pink-600 mb-2">Rp {Number(variant.price).toLocaleString('id-ID')}</p>
